@@ -1,0 +1,10 @@
+GetFirstOrderIntent get order status for order number {order}
+GetFirstOrderIntent give me status for order number {order}
+GetFirstOrderIntent where is order number {order}
+GetFirstOrderIntent what happened to order number {order}
+GetFirstOrderIntent order number {order}
+
+AMAZON.StopIntent no
+AMAZON.StopIntent nope
+AMAZON.StopIntent no thanks
+AMAZON.StopIntent no thank you

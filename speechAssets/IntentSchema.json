@@ -1,11 +1,11 @@
 {
   "intents": [
     {
-      "intent": "GetFirstOrderIntent",
+      "intent": "GetContactNameIntent",
       "slots": [
         {
-          "name": "order",
-          "type": "AMAZON.NUMBER"
+          "name": "ContactName",
+          "type": "AMAZON.LITERAL"
         }
       ]
     },

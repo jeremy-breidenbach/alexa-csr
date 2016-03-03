@@ -1,0 +1,22 @@
+{
+  "name": "alexa-csr",
+  "version": "1.0.0",
+  "description": "Amazon Alexa skill to open a Customer Service Request (CSR)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeremy-breidenbach/alexa-csr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jeremy-breidenbach/alexa-csr/issues"
+  },
+  "homepage": "https://github.com/jeremy-breidenbach/alexa-csr#readme",
+  "dependencies": {
+    "request": "^2.69.0"
+  }
+}

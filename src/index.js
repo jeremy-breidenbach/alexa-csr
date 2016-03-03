@@ -5,6 +5,9 @@ var APP_ID = undefined; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-valu
 
 var https = require('https');
 
+// Simplified HTTP request client.
+var request = require('request');
+
 /**
  * The AlexaSkill Module that has the AlexaSkill prototype and helper functions
  */
@@ -13,51 +16,51 @@ var AlexaSkill = require('./AlexaSkill');
 /**
  * URL prefix to download history content from Wikipedia
  */
-var urlPrefix = 'https://hackathon-api.xyz/orders/';
+var urlPrefix = 'https://schultzsandbox.outsystemscloud.com/DirectSupplyEcho/rest/RESTCSR/';
 
 /**
- * OrderStatusSkill is a child of AlexaSkill.
+ * CSRSkill is a child of AlexaSkill.
  * To read more about inheritance in JavaScript, see the link below.
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript#Inheritance
  */
-var OrderStatusSkill = function() {
+var CSRSkill = function() {
     AlexaSkill.call(this, APP_ID);
 };
 
 // Extend AlexaSkill
-OrderStatusSkill.prototype = Object.create(AlexaSkill.prototype);
-OrderStatusSkill.prototype.constructor = OrderStatusSkill;
+CSRSkill.prototype = Object.create(AlexaSkill.prototype);
+CSRSkill.prototype.constructor = CSRSkill;
 
-OrderStatusSkill.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
-    console.log("OrderStatusSkill onSessionStarted requestId: " + sessionStartedRequest.requestId
+CSRSkill.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
+    console.log("CSRSkill onSessionStarted requestId: " + sessionStartedRequest.requestId
         + ", sessionId: " + session.sessionId);
 
     // any session init logic would go here
 };
 
-OrderStatusSkill.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
-    console.log("OrderStatusSkill onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
+CSRSkill.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
+    console.log("CSRSkill onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
     getWelcomeResponse(response);
 };
 
-OrderStatusSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
+CSRSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
     console.log("onSessionEnded requestId: " + sessionEndedRequest.requestId
         + ", sessionId: " + session.sessionId);
 
     // any session cleanup logic would go here
 };
 
-OrderStatusSkill.prototype.intentHandlers = {
+CSRSkill.prototype.intentHandlers = {
 
-    "GetFirstOrderIntent": function (intent, session, response) {
-        handleFirstOrderRequest(intent, session, response);
+    "GetContactNameIntent": function (intent, session, response) {
+        handleFirstcsrRequest(intent, session, response);
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        var speechText = "With Order Status, you can get information for any order.  " +
-            "For example, you could say an order number, or you can say exit. Now, which order do you want?";
-        var repromptText = "Which order do you want?";
+        var speechText = "With CSR, you can open a CSR for any csr.";
+            //"For example, you could say an csr number, or you can say exit. Now, which csr do you want?";
+        var repromptText = "What is your full name?";
         var speechOutput = {
             speech: speechText,
             type: AlexaSkill.speechOutputType.PLAIN_TEXT
@@ -92,10 +95,10 @@ OrderStatusSkill.prototype.intentHandlers = {
 
 function getWelcomeResponse(response) {
     // If we wanted to initialize the session to have some attributes we could add those here.
-    var cardTitle = "Order Status";
-    var repromptText = "With Order Status, you can get information for any order. For example, you could say an order number, or you can say exit. Now, which order do you want?";
-    var speechText = "<p>Order Status.</p> <p>What order do you want?</p>";
-    var cardOutput = "Order Status. What order do you want?";
+    var cardTitle = "CSR";
+    var repromptText = "With CSR, you can open a CSR for any csr. What is your full name?";
+    var speechText = "<p>CSR.</p> <p>What is your full name?</p>";
+    var cardOutput = "CSR. What is your full name?";
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.
 
@@ -113,30 +116,29 @@ function getWelcomeResponse(response) {
 /**
  * Gets a poster prepares the speech to reply to the user.
  */
-function handleFirstOrderRequest(intent, session, response) {
-    var orderSlot = intent.slots.order;
-    var repromptText = "With Order Status, you can get information for any order. For example, you could say an order number, or you can say exit. Now, which order do you want?";
+function handleContactNameRequest(intent, session, response) {
+    var contactSlot = intent.slots.ContactName;
+    var repromptText = "With CSR, you can open a CSR for any csr. What is your full name?";
 
-    var orderNumber = orderSlot.value;
+    var contactName = contactSlot.value;
 
-    var prefixContent = "<p>Order number " + orderNumber + ", </p>";
-    var cardContent = "Order number " + orderNumber + ", ";
+    var prefixContent = "<p>CSR for " + contactName + ", </p>";
+    var cardContent = "CSR for " + contactName + ", ";
 
-    var cardTitle = "Order Number " + orderNumber;
+    var cardTitle = "CSR for " + contactName;
 
-    getJsonOrderStatus(orderNumber, function (orderResponse) {
+    getJsonCSR(contactName, function (csrResponse) {
         var speechText = "";
-        var order = orderResponse;
+        var csr = csrResponse;
 
-        if (typeof order == "undefined") {
-            speechText = "There is a problem connecting to Order Status at this time. Please try again later.";
+        if (typeof csr == "undefined") {
+            speechText = "There is a problem connecting to csr Status at this time. Please try again later.";
             cardContent = speechText;
             response.tell(speechText);
         } else {
-            cardContent = cardContent + "for products " + order.products + ", order status is " + order.status + " ";
-            speechText = "<p>" + speechText + "for products " + order.products + ", order status is " + order.status + "</p> ";
+            cardContent = cardContent + "CSR number is " + csr + ".";
+            speechText = "<p>" + speechText + "CSR number is " + csr + "</p> ";
 
-            // speechText = speechText + " <p>Wanna go deeper in history?</p>";
             var speechOutput = {
                 speech: "<speak>" + prefixContent + speechText + "</speak>",
                 type: AlexaSkill.speechOutputType.SSML
@@ -147,27 +149,32 @@ function handleFirstOrderRequest(intent, session, response) {
     });
 }
 
-function getJsonOrderStatus(orderNumber, eventCallback) {
-    var url = urlPrefix + orderNumber;
+function getJsonCSR(contactName, eventCallback) {
+    var url = urlPrefix + contactName;
 
-    https.get(url, function(res) {
-        var body = '';
+    // https.get(url, function(res) {
+    //     var body = '';
 
-        res.on('data', function (chunk) {
-            body += chunk;
-        });
+    //     res.on('data', function (chunk) {
+    //         body += chunk;
+    //     });
 
-        res.on('end', function () {
-            eventCallback(JSON.parse(body));
-        });
-    }).on('error', function (e) {
-        console.log("Got error: ", e);
+    //     res.on('end', function () {
+    //         eventCallback(JSON.parse(body));
+    //     });
+    // }).on('error', function (e) {
+    //     console.log("Got error: ", e);
+    // });
+    request(url, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            eventCallback(body);
+        }
     });
 }
 
 // Create the handler that responds to the Alexa Request.
 exports.handler = function (event, context) {
-    // Create an instance of the OrderStatus Skill.
-    var skill = new OrderStatusSkill();
+    // Create an instance of the CSR Skill.
+    var skill = new CSRSkill();
     skill.execute(event, context);
 };

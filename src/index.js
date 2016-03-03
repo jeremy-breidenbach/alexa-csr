@@ -54,7 +54,7 @@ CSRSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest,
 CSRSkill.prototype.intentHandlers = {
 
     "GetContactNameIntent": function (intent, session, response) {
-        handleFirstcsrRequest(intent, session, response);
+        handleNewCSRRequest(intent, session, response);
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
@@ -116,7 +116,7 @@ function getWelcomeResponse(response) {
 /**
  * Gets a poster prepares the speech to reply to the user.
  */
-function handleContactNameRequest(intent, session, response) {
+function handleNewCSRRequest(intent, session, response) {
     var contactSlot = intent.slots.ContactName;
     var repromptText = "With CSR, you can open a CSR for any csr. What is your full name?";
 

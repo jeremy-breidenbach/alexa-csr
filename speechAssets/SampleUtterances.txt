@@ -1,10 +1,13 @@
-GetFirstOrderIntent get order status for order number {order}
-GetFirstOrderIntent give me status for order number {order}
-GetFirstOrderIntent where is order number {order}
-GetFirstOrderIntent what happened to order number {order}
-GetFirstOrderIntent order number {order}
+GetContactNameIntent to open a CSR
+GetContactNameIntent to create a CSR
+GetCSRDetailsIntent {wheelchair|Value}
+GetCSRDetailsIntent {The fan in the freezer is no longer working|Value}
 
 AMAZON.StopIntent no
 AMAZON.StopIntent nope
 AMAZON.StopIntent no thanks
 AMAZON.StopIntent no thank you
+AMAZON.StopIntent nevermind
+AMAZON.StopIntent stop
+AMAZON.StopIntent shut up
+AMAZON.StopIntent cancel

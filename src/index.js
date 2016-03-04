@@ -16,7 +16,7 @@ var AlexaSkill = require('./AlexaSkill');
 /**
  * URL prefix to download history content from Wikipedia
  */
-var urlPrefix = 'https://schultzsandbox.outsystemscloud.com/DirectSupplyEcho/rest/RESTCSR/';
+var urlPrefix = 'https://schultzsandbox.outsystemscloud.com/DirectSupplyEcho/rest/RESTCSR/NewCSR?ContactName=';
 
 /**
  * CSRSkill is a child of AlexaSkill.
@@ -41,7 +41,7 @@ CSRSkill.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequ
 
 CSRSkill.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("CSRSkill onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    getWelcomeResponse(response);
+    getWelcomeResponse(session, response);
 };
 
 CSRSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
@@ -54,12 +54,31 @@ CSRSkill.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest,
 CSRSkill.prototype.intentHandlers = {
 
     "GetContactNameIntent": function (intent, session, response) {
-        handleNewCSRRequest(intent, session, response);
+        handleContactNameRequest(intent, session, response);
     },
+    
+    "GetCSRDetailsIntent": function(intent, session, response) {
+        handleItemsRequest(intent, session, response);
+    },
+    
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        var speechText = "With CSR, you can open a CSR for any csr.";
-            //"For example, you could say an csr number, or you can say exit. Now, which csr do you want?";
+        var speechText = "";
+        switch (session.attributes.stage) {
+            case 0:
+                speechText = "With CSR, you can open a CSR for any order. First, start by saying your full name, or you can say exit.";
+                break;
+            case 1:
+                speechText = "You can say which items are affected, or you can say exit.";
+                break;
+            case 2:
+                speechText = "You can give a description of the problem, or you can say exit.";
+                break;
+            default:
+                speechText = "You can use CSR to open a CSR for any order. To start, please say your full name, or you can say exit.";
+        }
+        
+        
         var repromptText = "What is your full name?";
         var speechOutput = {
             speech: speechText,
@@ -93,15 +112,17 @@ CSRSkill.prototype.intentHandlers = {
  * Function to handle the onLaunch skill behavior
  */
 
-function getWelcomeResponse(response) {
+function getWelcomeResponse(session, response) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var cardTitle = "CSR";
-    var repromptText = "With CSR, you can open a CSR for any csr. What is your full name?";
     var speechText = "<p>CSR.</p> <p>What is your full name?</p>";
     var cardOutput = "CSR. What is your full name?";
+    var repromptText = "With CSR, you can open a CSR for any order. What is your full name?";
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.
 
+    session.attributes.stage = 0;
+    
     var speechOutput = {
         speech: "<speak>" + speechText + "</speak>",
         type: AlexaSkill.speechOutputType.SSML
@@ -116,42 +137,130 @@ function getWelcomeResponse(response) {
 /**
  * Gets a poster prepares the speech to reply to the user.
  */
-function handleNewCSRRequest(intent, session, response) {
-    var contactSlot = intent.slots.ContactName;
-    var repromptText = "With CSR, you can open a CSR for any csr. What is your full name?";
+function handleContactNameRequest(intent, session, response) {
+    //Check if session variables are already initialized.
+    session.attributes.stage = 0;
+    var speechText = "To open a CSR we need your full name.  Please state your full name.";
+    var repromptText = "In order to open a CSR we need your full name.  Please state your name.";
 
-    var contactName = contactSlot.value;
+    // var prefixContent = "<p>CSR for " + contactName + ", </p>";
+    // var cardContent = "CSR for " + contactName + ", ";
 
-    var prefixContent = "<p>CSR for " + contactName + ", </p>";
-    var cardContent = "CSR for " + contactName + ", ";
+    // var cardTitle = "CSR for " + contactName;
 
-    var cardTitle = "CSR for " + contactName;
-
-    getJsonCSR(contactName, function (csrResponse) {
-        var speechText = "";
-        var csr = csrResponse;
-
-        if (typeof csr == "undefined") {
-            speechText = "There is a problem connecting to csr Status at this time. Please try again later.";
-            cardContent = speechText;
-            response.tell(speechText);
-        } else {
-            cardContent = cardContent + "CSR number is " + csr + ".";
-            speechText = "<p>" + speechText + "CSR number is " + csr + "</p> ";
-
-            var speechOutput = {
-                speech: "<speak>" + prefixContent + speechText + "</speak>",
-                type: AlexaSkill.speechOutputType.SSML
-            };
-
-            response.tellWithCard(speechOutput, cardTitle, cardContent);
-        }
-    });
+    var speechOutput = {
+        speech: "<speak>" + speechText + "</speak>",
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    
+    var repromptOutput = {
+        speech: repromptText,
+        type: AlexaSkill.speechOutputType.PLAIN_TEXT
+    };
+    
+    response.ask(speechOutput, repromptOutput);
+    
 }
 
-function getJsonCSR(contactName, eventCallback) {
-    var url = urlPrefix + contactName;
 
+function handleItemsRequest(intent, session, response) {
+    var speechText = "";
+    var repromptText = "";
+    var intentValue = intent.slots.Value;
+    //check to see if session is initialized
+    //if(session.attributes.stage) {
+        //assign name
+        if(session.attributes.stage === 0) {
+            //set the session variable of the name
+            session.attributes.contactname = intentValue;
+            //set the next stage
+            session.attributes.stage = 1;
+            //set the next response
+            speechText = "What items would you like to add to this CSR?";
+            repromptText = "You can name any items you wish to add to this CSR";            
+        }
+        //assign items
+        else if(session.attributes.stage === 1) {
+             //set the session variable of the items
+            session.attributes.items = intentValue;
+            //set the next stage
+            session.attributes.stage = 2;
+            //set the next response
+            speechText = "What are the details of your CSR?";
+            repromptText = "Can you describe the request?";
+        }
+        
+        //assign the details and create the CSR
+        else if(session.attributes.stage === 2) {
+            
+            //save description here
+            session.attributes.details = intentValue;
+            
+            speechText = "Creating CSR now!";
+            
+            //create the CSR via webservice, session.attributes.contactname, session.attributes.items, itemSlot.value (Details)
+            getJsonCSR(session, function (csrResponse) { 
+                
+                
+                //set the response? here?
+                speechText = "Request <number> has been created, a customer service representative will follow up with you soon.";
+                
+                var speechOutput = {
+                    speech: "<speak>" + speechText + "</speak>",
+                    type: AlexaSkill.speechOutputType.SSML
+                };
+
+                response.tell(speechOutput);
+                
+            });
+
+        }
+        
+        else {
+            session.attributes.stage = 1;
+            
+            
+        }
+        
+    //}    
+    
+    // else {
+    //     //If the session attributes are not found, the csr must restart.
+    //     speechText = "Sorry, i can't open a CSR yet. What is your full name. Say my full name is Jane Doe."
+
+    //     repromptText = "You can say, My full name is Jane Doe.";
+        
+        
+    // }
+
+    var speechOutput = {
+        speech: '<speak>' + speechText + '</speak>',
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    
+    var repromptOutput = {
+        speech: '<speak>' + repromptText + '</speak>',
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    
+    response.ask(speechOutput, repromptOutput);
+
+    // var itemSlot = intent.slots.Items;
+    // var repromptText = "You can say which item is affected?";
+
+    // var itemValue = itemSlot.value;
+
+    // var prefixContent = "<p>CSR for item " + itemValue + ", </p>";
+    // var cardContent = "CSR for item " + itemValue + ", ";
+
+    // var cardTitle = "CSR for item " + itemValue;
+
+    
+}
+
+function getJsonCSR(session, eventCallback) {
+    var url = urlPrefix + session.attributes.contactname.value  + "&Items=" + session.attributes.items.value + "&Details=" + session.attributes.details.value;
+    session.attributes.url = url;
     // https.get(url, function(res) {
     //     var body = '';
 
@@ -165,9 +274,13 @@ function getJsonCSR(contactName, eventCallback) {
     // }).on('error', function (e) {
     //     console.log("Got error: ", e);
     // });
+    
     request(url, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             eventCallback(body);
+        }
+        else{
+            session.attributes.error = error.message;
         }
     });
 }

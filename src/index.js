@@ -221,13 +221,11 @@ function handleItemsRequest(intent, session, response) {
             //save description here
             session.attributes.details = intentValue;
             
-            //speechText = "Creating CSR now!";
-            
             //create the CSR via webservice, session.attributes.contactname, session.attributes.items, itemSlot.value (Details)
             getJsonCSR(session, function (csrResponse) { 
                 
                 
-                //set the response? here?
+                //set the response here
                 speechText = "Request " + csrResponse + " has been created, a customer service representative will follow up with you soon.";
                 
                 var speechOutput = {
@@ -259,14 +257,6 @@ function handleItemsRequest(intent, session, response) {
     // }
 
     
-    
-    
-
-    // var itemSlot = intent.slots.Items;
-    // var repromptText = "You can say which item is affected?";
-
-    // var itemValue = itemSlot.value;
-
     // var prefixContent = "<p>CSR for item " + itemValue + ", </p>";
     // var cardContent = "CSR for item " + itemValue + ", ";
 

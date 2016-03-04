@@ -166,6 +166,7 @@ function handleContactNameRequest(intent, session, response) {
 function handleItemsRequest(intent, session, response) {
     var speechText = "";
     var repromptText = "";
+
     var intentValue = intent.slots.Value;
     //check to see if session is initialized
     //if(session.attributes.stage) {
@@ -177,7 +178,19 @@ function handleItemsRequest(intent, session, response) {
             session.attributes.stage = 1;
             //set the next response
             speechText = "What items would you like to add to this CSR?";
-            repromptText = "You can name any items you wish to add to this CSR";            
+            repromptText = "You can name any items you wish to add to this CSR";
+            
+            var speechOutput = {
+                speech: '<speak>' + speechText + '</speak>',
+                type: AlexaSkill.speechOutputType.SSML
+            };
+            
+            var repromptOutput = {
+                speech: '<speak>' + repromptText + '</speak>',
+                type: AlexaSkill.speechOutputType.SSML
+            };
+            
+            response.ask(speechOutput, repromptOutput);
         }
         //assign items
         else if(session.attributes.stage === 1) {
@@ -188,6 +201,18 @@ function handleItemsRequest(intent, session, response) {
             //set the next response
             speechText = "What are the details of your CSR?";
             repromptText = "Can you describe the request?";
+            
+            var speechOutput = {
+                speech: '<speak>' + speechText + '</speak>',
+                type: AlexaSkill.speechOutputType.SSML
+            };
+            
+            var repromptOutput = {
+                speech: '<speak>' + repromptText + '</speak>',
+                type: AlexaSkill.speechOutputType.SSML
+            };
+            
+            response.ask(speechOutput, repromptOutput);
         }
         
         //assign the details and create the CSR
@@ -196,14 +221,14 @@ function handleItemsRequest(intent, session, response) {
             //save description here
             session.attributes.details = intentValue;
             
-            speechText = "Creating CSR now!";
+            //speechText = "Creating CSR now!";
             
             //create the CSR via webservice, session.attributes.contactname, session.attributes.items, itemSlot.value (Details)
             getJsonCSR(session, function (csrResponse) { 
                 
                 
                 //set the response? here?
-                speechText = "Request <number> has been created, a customer service representative will follow up with you soon.";
+                speechText = "Request " + csrResponse + " has been created, a customer service representative will follow up with you soon.";
                 
                 var speechOutput = {
                     speech: "<speak>" + speechText + "</speak>",
@@ -233,17 +258,9 @@ function handleItemsRequest(intent, session, response) {
         
     // }
 
-    var speechOutput = {
-        speech: '<speak>' + speechText + '</speak>',
-        type: AlexaSkill.speechOutputType.SSML
-    };
     
-    var repromptOutput = {
-        speech: '<speak>' + repromptText + '</speak>',
-        type: AlexaSkill.speechOutputType.SSML
-    };
     
-    response.ask(speechOutput, repromptOutput);
+    
 
     // var itemSlot = intent.slots.Items;
     // var repromptText = "You can say which item is affected?";
@@ -259,8 +276,8 @@ function handleItemsRequest(intent, session, response) {
 }
 
 function getJsonCSR(session, eventCallback) {
-    var url = urlPrefix + session.attributes.contactname.value  + "&Items=" + session.attributes.items.value + "&Details=" + session.attributes.details.value;
-    session.attributes.url = url;
+    var url = urlPrefix + session.attributes.contactname.value + "&Items=" + session.attributes.items.value + "&Details=" + session.attributes.details.value;
+    //session.attributes.url = url;
     // https.get(url, function(res) {
     //     var body = '';
 
@@ -280,7 +297,7 @@ function getJsonCSR(session, eventCallback) {
             eventCallback(body);
         }
         else{
-            session.attributes.error = error.message;
+            //session.attributes.error = error.message;
         }
     });
 }

@@ -1,7 +1,24 @@
-GetContactNameIntent to open a CSR
 GetContactNameIntent to create a CSR
+
+DSCallMeIntent Call Me
+
+DSMarketingIntent current promotions
+
+DSCreatePMOIntent I really love the current PMO process
+
+GetCSRStatusIntent Status of {number}
+GetCSRStatusIntent What is the status of CSR {number}
+GetCSRStatusIntent Status of CSR {number}
+
+GetCSRDetailsIntent {Jane Doe|Value}
 GetCSRDetailsIntent {wheelchair|Value}
+GetCSRDetailsIntent {wheelchair and cushion|Value}
+GetCSRDetailsIntent {a wheelchair and a cushion|Value}
+GetCSRDetailsIntent {one two three|Value}
+GetCSRDetailsIntent {one two three four|Value}
+GetCSRDetailsIntent {one two three four five|Value}
 GetCSRDetailsIntent {The fan in the freezer is no longer working|Value}
+
 
 AMAZON.StopIntent no
 AMAZON.StopIntent nope

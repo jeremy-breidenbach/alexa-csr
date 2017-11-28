@@ -19,6 +19,24 @@
       ]
     },
     {
+      "intent": "GetCSRStatusIntent",
+      "slots": [
+        {
+          "name": "number",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
+      "intent": "DSCreatePMOIntent"
+    },
+    {
+      "intent": "DSCallMeIntent"
+    },
+        {
+      "intent": "DSMarketingIntent"
+    },
+    {
       "intent": "AMAZON.HelpIntent"
     },
     {
